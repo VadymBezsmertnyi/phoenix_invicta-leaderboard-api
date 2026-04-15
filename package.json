@@ -1,0 +1,27 @@
+{
+  "name": "phoenix_invicta-leaderboard-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "rimraf": "./node_modules/rimraf/bin.js",
+    "start": "node ./build/index.js",
+    "start:dev": "npx nodemon",
+    "build": "rimraf ./build && tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mariadb": "^3.5.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "nodemon": "^3.1.14",
+    "typescript": "^6.0.2"
+  }
+}
