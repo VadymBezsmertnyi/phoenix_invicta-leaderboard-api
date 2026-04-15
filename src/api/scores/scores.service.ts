@@ -12,7 +12,7 @@ import { CreateScoreBodyT, ScoreT } from "./scores.types";
 
 export const getScores = async (): Promise<ScoreT[]> => {
   const rows = await dbPool.query(
-    "SELECT id, user_id AS userId, value, created_at FROM scores ORDER BY id DESC"
+    "SELECT id, user_id, value, created_at FROM scores ORDER BY id DESC"
   );
   const validatedScores = scoresSchema.parse(rows);
 
@@ -36,7 +36,7 @@ export const addScore = async (
   );
   const insertId = (insertResult as { insertId: number }).insertId;
   const rows = await dbPool.query(
-    "SELECT id, user_id AS userId, value, created_at FROM scores WHERE id = ? LIMIT 1",
+    "SELECT id, user_id, value, created_at FROM scores WHERE id = ? LIMIT 1",
     [insertId]
   );
   if (rows.length === 0) throw new Error("Created score was not found");
