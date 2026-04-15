@@ -11,6 +11,6 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.use("/api/leaderboard", leaderboardRouter);
-app.use("/api/scores", scoresRouter);
-app.use("/api/users", usersRouter);
+app.use("/leaderboard", leaderboardRouter);
+app.use("/scores", scoresRouter);
+app.use("/users", usersRouter);
