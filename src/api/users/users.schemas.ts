@@ -3,7 +3,7 @@ import z from "zod";
 export const userSchema = z.object({
   id: z.number(),
   username: z.string(),
-  created_at: z.string(),
+  created_at: z.string().or(z.date()),
 });
 
 export const usersSchema = z.array(userSchema);
