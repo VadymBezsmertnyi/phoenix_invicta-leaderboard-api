@@ -10,7 +10,7 @@ const seed = async (): Promise<void> => {
 
     const users = await connection.query(
       "INSERT INTO users (username) VALUES (?), (?), (?) RETURNING id, username",
-      ["alice", "bob", "charlie"],
+      ["alice", "bob", "charlie"]
     );
 
     const insertedUsers = users as Array<{ id: number; username: string }>;
@@ -23,8 +23,8 @@ const seed = async (): Promise<void> => {
     }
 
     await connection.query(
-      "INSERT INTO scores (user_id, points) VALUES (?, ?), (?, ?), (?, ?), (?, ?), (?, ?)",
-      [alice.id, 100, bob.id, 120, charlie.id, 90, alice.id, 80, bob.id, 40],
+      "INSERT INTO scores (user_id, value) VALUES (?, ?), (?, ?), (?, ?), (?, ?), (?, ?)",
+      [alice.id, 100, bob.id, 120, charlie.id, 90, alice.id, 80, bob.id, 40]
     );
 
     console.log("Seed completed");
