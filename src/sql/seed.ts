@@ -1,31 +1,78 @@
+import type { PoolConnection } from "mariadb";
 import { dbPool } from "../config/db";
 
+const USERS_COUNT = 100_000;
+const SCORES_COUNT = 500_000;
+const USERS_BATCH_SIZE = 5_000;
+const SCORES_BATCH_SIZE = 10_000;
+
+const buildValuesClause = (
+  rowsCount: number,
+  columnsPerRow: number
+): string => {
+  const rowPlaceholder = `(${Array(columnsPerRow).fill("?").join(", ")})`;
+  return Array(rowsCount).fill(rowPlaceholder).join(", ");
+};
+
 const seed = async (): Promise<void> => {
-  let connection;
+  let connection: PoolConnection | undefined;
 
   try {
     connection = await dbPool.getConnection();
+
+    console.log("Cleaning tables...");
     await connection.query("DELETE FROM scores");
     await connection.query("DELETE FROM users");
+    await connection.query("ALTER TABLE users AUTO_INCREMENT = 1");
+    await connection.query("ALTER TABLE scores AUTO_INCREMENT = 1");
 
-    const users = await connection.query(
-      "INSERT INTO users (username) VALUES (?), (?), (?) RETURNING id, username",
-      ["alice", "bob", "charlie"]
-    );
+    console.log(`Seeding users: ${USERS_COUNT}`);
+    for (let start = 1; start <= USERS_COUNT; start += USERS_BATCH_SIZE) {
+      const end = Math.min(start + USERS_BATCH_SIZE - 1, USERS_COUNT);
+      const batchCount = end - start + 1;
+      const valuesClause = buildValuesClause(batchCount, 1);
+      const params: string[] = [];
 
-    const insertedUsers = users as Array<{ id: number; username: string }>;
-    const alice = insertedUsers[0];
-    const bob = insertedUsers[1];
-    const charlie = insertedUsers[2];
+      for (let i = start; i <= end; i += 1) {
+        params.push(`user_${i}`);
+      }
 
-    if (!alice || !bob || !charlie) {
-      throw new Error("Cannot create seed scores without seeded users");
+      await connection.query(
+        `INSERT INTO users (username) VALUES ${valuesClause}`,
+        params
+      );
+
+      if (end % 20_000 === 0 || end === USERS_COUNT) {
+        console.log(`Users inserted: ${end}/${USERS_COUNT}`);
+      }
     }
 
-    await connection.query(
-      "INSERT INTO scores (user_id, value) VALUES (?, ?), (?, ?), (?, ?), (?, ?), (?, ?)",
-      [alice.id, 100, bob.id, 120, charlie.id, 90, alice.id, 80, bob.id, 40]
-    );
+    console.log(`Seeding scores: ${SCORES_COUNT}`);
+    for (
+      let inserted = 0;
+      inserted < SCORES_COUNT;
+      inserted += SCORES_BATCH_SIZE
+    ) {
+      const batchCount = Math.min(SCORES_BATCH_SIZE, SCORES_COUNT - inserted);
+      const valuesClause = buildValuesClause(batchCount, 2);
+      const params: number[] = [];
+
+      for (let i = 0; i < batchCount; i += 1) {
+        const userId = Math.floor(Math.random() * USERS_COUNT) + 1;
+        const value = Math.floor(Math.random() * 1000) + 1;
+        params.push(userId, value);
+      }
+
+      await connection.query(
+        `INSERT INTO scores (user_id, value) VALUES ${valuesClause}`,
+        params
+      );
+
+      const totalInserted = inserted + batchCount;
+      if (totalInserted % 100_000 === 0 || totalInserted === SCORES_COUNT) {
+        console.log(`Scores inserted: ${totalInserted}/${SCORES_COUNT}`);
+      }
+    }
 
     console.log("Seed completed");
   } catch (error) {
