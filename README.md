@@ -77,6 +77,23 @@ Run seed:
 npx ts-node src/sql/seed.ts
 ```
 
+> If the database was created earlier with an outdated schema, the seed script may fail due to missing or renamed columns.
+> It is recommended to recreate the database before running schema.sql and seed.
+
+```bash
+mysql -u dev -p
+```
+
+```sql
+DROP DATABASE IF EXISTS leaderboard;
+CREATE DATABASE leaderboard;
+```
+
+```bash
+mysql -u dev -p leaderboard < src/sql/schema.sql
+npx ts-node src/sql/seed.ts
+```
+
 > On Linux/Windows, install MariaDB using your preferred package manager.
 > The setup steps remain the same.
 
