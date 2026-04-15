@@ -10,6 +10,6 @@ export const scoreSchema = z.object({
 export const scoresSchema = z.array(scoreSchema);
 
 export const createScoreBodySchema = z.object({
-  userId: z.number().int().positive(),
+  user_id: z.number().int().positive(),
   value: z.number().int().positive(),
 });

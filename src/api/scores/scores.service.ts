@@ -23,15 +23,16 @@ export const addScore = async (
   input: unknown | CreateScoreBodyT
 ): Promise<ScoreT> => {
   const validatedInput = createScoreBodySchema.parse(input);
+  const userId = validatedInput.user_id;
   const users = await dbPool.query(
     "SELECT id FROM users WHERE id = ? LIMIT 1",
-    [validatedInput.userId]
+    [userId]
   );
   if (users.length === 0) throw new Error("User not found");
 
   const insertResult = await dbPool.query(
     "INSERT INTO scores (user_id, value) VALUES (?, ?)",
-    [validatedInput.userId, validatedInput.value]
+    [userId, validatedInput.value]
   );
   const insertId = (insertResult as { insertId: number }).insertId;
   const rows = await dbPool.query(
