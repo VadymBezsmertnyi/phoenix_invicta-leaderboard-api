@@ -1,31 +1,38 @@
 import { dbPool } from "../../config/db";
-import { UserT } from "./users.types";
+
+// schemas
+import { createUserBodySchema, userSchema, usersSchema } from "./users.schemas";
+
+// types
+import { CreateUserBodyT, UserT } from "./users.types";
 
 export const getUsers = async (): Promise<UserT[]> => {
   const rows = await dbPool.query(
-    "SELECT id, username, created_at FROM users ORDER BY id DESC",
+    "SELECT id, username, created_at FROM users ORDER BY id DESC"
   );
+  const validatedUsers = usersSchema.parse(rows);
 
-  return rows as UserT[];
+  return validatedUsers;
 };
 
-export const createUser = async (username: string): Promise<UserT> => {
+export const createUser = async (
+  input: unknown | CreateUserBodyT
+): Promise<UserT> => {
+  const validatedInput = createUserBodySchema.parse(input);
   const insertResult = await dbPool.query(
     "INSERT INTO users (username) VALUES (?)",
-    [username],
+    [validatedInput.username]
   );
-
   const insertId = (insertResult as { insertId: number }).insertId;
   const rows = await dbPool.query(
     "SELECT id, username, created_at FROM users WHERE id = ? LIMIT 1",
-    [insertId],
+    [insertId]
   );
+  if (rows.length === 0) throw new Error("Created user was not found");
 
-  const user = (rows as UserT[])[0];
+  const user = rows[0];
+  if (!user) throw new Error("Created user was not found");
 
-  if (!user) {
-    throw new Error("Failed to fetch created user");
-  }
-
-  return user;
+  const validatedUser = userSchema.parse(user);
+  return validatedUser;
 };
