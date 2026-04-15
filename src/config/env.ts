@@ -10,3 +10,5 @@ export const env = {
   DB_PASSWORD: process.env.DB_PASSWORD ?? "",
   DB_NAME: process.env.DB_NAME ?? "leaderboard",
 } as const;
+
+export const IS_DEVELOPMENT = process.env.NODE_ENV === "development";
