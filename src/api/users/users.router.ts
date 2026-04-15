@@ -2,7 +2,7 @@ import { Request, Response, Router } from "express";
 import { ZodError } from "zod";
 
 // types
-import { CreateUserBodyT, UserT } from "./users.types";
+import { UserT } from "./users.types";
 
 // services
 import { createUser, getUsers } from "./users.service";
@@ -30,7 +30,7 @@ usersRouter.get(
 usersRouter.post(
   "/",
   async (
-    req: Request<{}, UserT | { message: string }, CreateUserBodyT>,
+    req: Request<{}, UserT | { message: string }, unknown>,
     res: Response<UserT | { message: string }>
   ) => {
     try {
@@ -43,10 +43,12 @@ usersRouter.post(
         return;
       }
       if (
-        error instanceof Error &&
-        error.message === "Username already exists"
+        typeof error === "object" &&
+        error !== null &&
+        "code" in error &&
+        error.code === "ER_DUP_ENTRY"
       ) {
-        res.status(409).json({ message: error.message });
+        res.status(409).json({ message: "Username already exists" });
         return;
       }
 

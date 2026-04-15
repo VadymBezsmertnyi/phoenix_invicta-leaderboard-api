@@ -4,7 +4,7 @@ import { dbPool } from "../../config/db";
 import { createUserBodySchema, userSchema, usersSchema } from "./users.schemas";
 
 // types
-import { CreateUserBodyT, UserT } from "./users.types";
+import { UserT } from "./users.types";
 
 export const getUsers = async (): Promise<UserT[]> => {
   const rows = await dbPool.query(
@@ -15,9 +15,7 @@ export const getUsers = async (): Promise<UserT[]> => {
   return validatedUsers;
 };
 
-export const createUser = async (
-  input: unknown | CreateUserBodyT
-): Promise<UserT> => {
+export const createUser = async (input: unknown): Promise<UserT> => {
   const validatedInput = createUserBodySchema.parse(input);
   const insertResult = await dbPool.query(
     "INSERT INTO users (username) VALUES (?)",
