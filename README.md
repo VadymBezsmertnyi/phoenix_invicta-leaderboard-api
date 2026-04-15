@@ -83,16 +83,16 @@ npx ts-node src/sql/seed.ts
 ## Run App
 
 ```bash
-npm run dev
+npm run start:dev
 ```
 
 Stop app: `Ctrl + C`.
 
 ## API Endpoints
 
-- `POST /api/scores` - Creates a score record (`userId`, `value`) and returns created score.
-- `GET /api/leaderboard` - Returns top 100 users with `rank`, `total_score`, `average_score`, `last_activity`.
-- `GET /api/users/:id/rank` - Returns user rank by id (`not implemented yet`).
+- `POST /scores` - Creates a score record (`user_id`, `value`) and returns created score.
+- `GET /leaderboard` - Returns top 100 users with `rank`, `username`, `total_score`, `average_score`, `last_activity`.
+- `GET /users/:id/rank` - Returns `{ user_id, username, rank, total_score }` for a specific user.
 
 ## Architecture
 
