@@ -28,6 +28,28 @@ brew install mariadb
 brew services start mariadb
 ```
 
+If `mysql -u root` is unavailable, open MariaDB via:
+
+```bash
+sudo mysql
+```
+
+Create local dev user:
+
+```sql
+CREATE USER 'dev'@'localhost' IDENTIFIED BY '1234';
+GRANT ALL PRIVILEGES ON *.* TO 'dev'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+Default credentials used in this project: `dev / 1234`
+
+Create database:
+
+```bash
+mysql -u dev -p -e "CREATE DATABASE IF NOT EXISTS leaderboard;"
+```
+
 ### Stop MariaDB
 
 ```bash
@@ -41,16 +63,12 @@ npm install
 cp .env.example .env
 ```
 
-Create database:
-
-```sql
-CREATE DATABASE leaderboard;
-```
+Update `.env` using your local DB credentials (`dev` / `1234` by default).
 
 Run schema:
 
 ```bash
-mysql -u root -p leaderboard < src/sql/schema.sql
+mysql -u dev -p leaderboard < src/sql/schema.sql
 ```
 
 Run seed:
@@ -58,6 +76,9 @@ Run seed:
 ```bash
 npx ts-node src/sql/seed.ts
 ```
+
+> On Linux/Windows, install MariaDB using your preferred package manager.
+> The setup steps remain the same.
 
 ## Run App
 
@@ -71,7 +92,7 @@ Stop app: `Ctrl + C`.
 
 - `POST /api/scores` - Creates a score record (`userId`, `value`) and returns created score.
 - `GET /api/leaderboard` - Returns top 100 users with `rank`, `total_score`, `average_score`, `last_activity`.
-- `GET /api/users/:id/rank` - Returns user rank by id (planned endpoint; not implemented yet).
+- `GET /api/users/:id/rank` - Returns user rank by id (`not implemented yet`).
 
 ## Architecture
 
