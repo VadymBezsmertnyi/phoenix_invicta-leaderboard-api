@@ -6,3 +6,10 @@ export const scoreSchema = z.object({
   value: z.number(),
   created_at: z.string(),
 });
+
+export const scoresSchema = z.array(scoreSchema);
+
+export const createScoreBodySchema = z.object({
+  userId: z.number().int().positive(),
+  value: z.number().int().positive(),
+});
